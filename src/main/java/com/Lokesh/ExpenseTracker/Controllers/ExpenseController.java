@@ -14,6 +14,7 @@ import java.util.List;
 public class ExpenseController {
 
     private ExpenseService expenseService;
+
     @Autowired
     public ExpenseController(ExpenseService expenseService) {
         this.expenseService = expenseService;
@@ -32,11 +33,13 @@ public class ExpenseController {
 
     @PostMapping("/users/{id}/expenses")
     public ResponseEntity<Expense> createExpense(@PathVariable Long id, @RequestBody Expense expense){
-        try{
-            expenseService.addExpense(id, expense);
-            return new ResponseEntity<>(expense ,HttpStatus.CREATED);
-        }catch(RuntimeException e){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        expenseService.addExpense(id, expense);
+        return new ResponseEntity<>(expense ,HttpStatus.CREATED);
+    }
+
+    @GetMapping("/users/{uid}/expenses/{eid}")
+    public ResponseEntity<?> getExpenseById(@PathVariable Long uid, @PathVariable Long eid){
+        Expense expense = expenseService.getExpenseByUserIdAndExpenseId(uid, eid);
+        return new ResponseEntity<>(expense, HttpStatus.OK);
     }
 }

@@ -14,5 +14,5 @@ public class User {
     private Long id;
     private String username;
 
-    private BigDecimal amount;
+    private BigDecimal amountSpent;
 }

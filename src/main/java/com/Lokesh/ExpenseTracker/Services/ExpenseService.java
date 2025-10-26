@@ -1,5 +1,8 @@
 package com.Lokesh.ExpenseTracker.Services;
 
+import com.Lokesh.ExpenseTracker.Exceptions.AccessDeniedException;
+import com.Lokesh.ExpenseTracker.Exceptions.ExpenseNotFoundException;
+import com.Lokesh.ExpenseTracker.Exceptions.InvalidUserException;
 import com.Lokesh.ExpenseTracker.Models.Expense;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,8 +58,24 @@ public class ExpenseService {
         return expenses.stream().filter(expense -> expense.getUserId().equals(id)).toList();
     }
 
-    public void addExpense(Long id, Expense expense) throws RuntimeException {
-        userService.updateAmount(id, expense);
+    public void addExpense(Long id, Expense expense) throws InvalidUserException {
+        userService.updateAmountSpent(id, expense);
         expenses.add(expense);
+    }
+
+    public Expense getExpenseByUserIdAndExpenseId(Long uid, Long eid) throws AccessDeniedException, ExpenseNotFoundException {
+        Expense expense = expenses
+                .stream()
+                .filter(exp -> exp.getId().equals(eid))
+                .findFirst()
+                .orElse(null);
+
+        if(expense == null)
+            throw new ExpenseNotFoundException("Expense with id:"+eid+" not found");
+
+        if(!expense.getUserId().equals(uid))
+            throw new AccessDeniedException("Access Denied");
+
+        return expense;
     }
 }

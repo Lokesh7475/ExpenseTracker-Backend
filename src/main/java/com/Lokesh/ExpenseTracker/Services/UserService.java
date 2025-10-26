@@ -1,5 +1,6 @@
 package com.Lokesh.ExpenseTracker.Services;
 
+import com.Lokesh.ExpenseTracker.Exceptions.InvalidUserException;
 import com.Lokesh.ExpenseTracker.Models.Expense;
 import com.Lokesh.ExpenseTracker.Models.User;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,8 @@ public class UserService {
             new User(5L, "Karan", new BigDecimal("1875.25"))
     ));
 
-    public User getUserById(Long id) {
-        return users.stream().filter(user -> user.getId().equals(id)).findFirst().orElse(null);
+    public User getUserById(Long id) throws InvalidUserException {
+        return users.stream().filter(user -> user.getId().equals(id)).findFirst().orElseThrow(() -> new InvalidUserException("User does not exists"));
     }
 
     public User addUser(User user) {
@@ -37,11 +38,11 @@ public class UserService {
         users.remove(user1);
     }
 
-    public void updateAmount(Long id, Expense expense) throws RuntimeException {
+    public void updateAmountSpent(Long id, Expense expense) throws InvalidUserException {
         User user = getUserById(id);
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new InvalidUserException("User with id "+id+" does not exists.");
         }
-        user.setAmount(user.getAmount().add(expense.getAmount()));
+        user.setAmountSpent(user.getAmountSpent().add(expense.getAmount()));
     }
 }
