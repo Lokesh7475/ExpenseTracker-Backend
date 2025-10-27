@@ -27,28 +27,17 @@ public class UserController {
     @GetMapping("/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id){
         User user = userService.getUserById(id);
-        if(user == null){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PostMapping("/users")
     public ResponseEntity<?> addUser(@RequestBody User user){
-        try{
-            return new ResponseEntity<>(userService.addUser(user), HttpStatus.CREATED);
-        }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(userService.addUser(user), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id){
         User user1 = userService.getUserById(id);
-        if(user1 == null){
-            return  new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         userService.deleteUser(user1);
         return new  ResponseEntity<>(HttpStatus.OK);
     }

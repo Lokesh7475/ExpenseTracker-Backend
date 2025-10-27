@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping("/api")
 public class ExpenseController {
 
-    private ExpenseService expenseService;
+    private final ExpenseService expenseService;
 
     @Autowired
     public ExpenseController(ExpenseService expenseService) {

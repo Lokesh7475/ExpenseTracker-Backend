@@ -3,46 +3,44 @@ package com.Lokesh.ExpenseTracker.Services;
 import com.Lokesh.ExpenseTracker.Exceptions.InvalidUserException;
 import com.Lokesh.ExpenseTracker.Models.Expense;
 import com.Lokesh.ExpenseTracker.Models.User;
+import com.Lokesh.ExpenseTracker.Repo.UserRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.*;
 
 @Service
 public class UserService {
 
-    private List<User> users = new ArrayList<>(List.of(
-            new User(1L, "Lokesh", new BigDecimal("1500.00")),
-            new User(2L, "Aarav", new BigDecimal("2450.50")),
-            new User(3L, "Neha", new BigDecimal("980.75")),
-            new User(4L, "Riya", new BigDecimal("3050.00")),
-            new User(5L, "Karan", new BigDecimal("1875.25"))
-    ));
+    private final UserRepo userRepo;
+    @Autowired
+    public UserService(UserRepo userRepo) {
+        this.userRepo = userRepo;
+    }
 
     public User getUserById(Long id) throws InvalidUserException {
-        return users.stream().filter(user -> user.getId().equals(id)).findFirst().orElseThrow(() -> new InvalidUserException("User does not exists"));
+        return userRepo.findById(id).stream().findFirst().orElseThrow(() -> new InvalidUserException("This user does not exists"));
     }
 
     public User addUser(User user) {
-        users.add(user);
-        return user;
+        if(user.getAmountSpent()==null)
+            user.setAmountSpent(new BigDecimal("0.00"));
+        return userRepo.save(user);
     }
 
     public List<User> getAllUsers() {
-        return users;
+        return userRepo.findAll();
     }
 
     public void deleteUser(User user1) {
-        users.remove(user1);
+        userRepo.delete(user1);
     }
 
     public void updateAmountSpent(Long id, Expense expense) throws InvalidUserException {
-        User user = getUserById(id);
-        if (user == null) {
-            throw new InvalidUserException("User with id "+id+" does not exists.");
-        }
+        User user = userRepo.findById(id).orElseThrow(() -> new InvalidUserException("This user does not exists"));
         user.setAmountSpent(user.getAmountSpent().add(expense.getAmount()));
+        userRepo.save(user);
     }
 }
