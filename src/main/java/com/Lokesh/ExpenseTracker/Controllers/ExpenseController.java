@@ -42,4 +42,16 @@ public class ExpenseController {
         Expense expense = expenseService.getExpenseByUserIdAndExpenseId(uid, eid);
         return new ResponseEntity<>(expense, HttpStatus.OK);
     }
+
+    @DeleteMapping("/users/{id}/expenses")
+    public ResponseEntity<?> deleteExpense(@PathVariable Long id, @RequestBody Expense expense) {
+        expenseService.deleteExpense(id, expense);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/users/{id}/expenses")
+    public ResponseEntity<?> updateExpense(@PathVariable Long id, @RequestBody Expense expense){
+        expenseService.updateExpense(id, expense);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

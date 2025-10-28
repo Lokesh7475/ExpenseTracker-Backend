@@ -1,9 +1,6 @@
 package com.Lokesh.ExpenseTracker.Advice;
 
-import com.Lokesh.ExpenseTracker.Exceptions.ErrorResponse;
-import com.Lokesh.ExpenseTracker.Exceptions.ExpenseNotFoundException;
-import com.Lokesh.ExpenseTracker.Exceptions.AccessDeniedException;
-import com.Lokesh.ExpenseTracker.Exceptions.InvalidUserException;
+import com.Lokesh.ExpenseTracker.Exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,6 +10,12 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleAllExceptions(Exception e){
+        ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(), e.getMessage(), "Internal Server Error");
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     @ExceptionHandler(ExpenseNotFoundException.class)
     public ResponseEntity<?> handleExpenseNotFoundException(ExpenseNotFoundException e) {
@@ -30,5 +33,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleInvalidUserException(InvalidUserException e) {
         ErrorResponse invalidUser = new ErrorResponse(LocalDateTime.now(), e.getMessage(), "Invalid User");
         return new ResponseEntity<>(invalidUser, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ExpenseIsNullException.class)
+    public ResponseEntity<?> handleBadRequestException(ExpenseIsNullException e) {
+        ErrorResponse badRequest = new ErrorResponse(LocalDateTime.now(), e.getMessage(), "Bad Request");
+        return new ResponseEntity<>(badRequest, HttpStatus.BAD_REQUEST);
     }
 }

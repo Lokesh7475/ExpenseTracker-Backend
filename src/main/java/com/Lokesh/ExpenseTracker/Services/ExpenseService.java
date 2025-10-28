@@ -1,6 +1,7 @@
 package com.Lokesh.ExpenseTracker.Services;
 
 import com.Lokesh.ExpenseTracker.Exceptions.AccessDeniedException;
+import com.Lokesh.ExpenseTracker.Exceptions.ExpenseIsNullException;
 import com.Lokesh.ExpenseTracker.Exceptions.ExpenseNotFoundException;
 import com.Lokesh.ExpenseTracker.Exceptions.InvalidUserException;
 import com.Lokesh.ExpenseTracker.Models.Expense;
@@ -29,11 +30,29 @@ public class ExpenseService {
 
     @Transactional
     public void addExpense(Long id, Expense expense) throws InvalidUserException {
-        userService.updateAmountSpent(id, expense);
+        userService.updateAmountSpent(id, expense, true);
         expenseRepo.save(expense);
     }
 
     public Expense getExpenseByUserIdAndExpenseId(Long uid, Long eid) throws AccessDeniedException, ExpenseNotFoundException {
         return expenseRepo.findByIdAndUserId(eid, uid, Limit.of(1)).stream().findFirst().orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
+    }
+
+    @Transactional
+    public void deleteExpense(Long id, Expense expense) throws ExpenseIsNullException{
+        if(expense == null)
+            throw new ExpenseIsNullException("Expense object is not in the request");
+        expenseRepo.deleteExpenseByIdAndUserId(expense.getId(), id);
+        userService.updateAmountSpent(id, expense, false);
+    }
+
+    @Transactional
+    public void updateExpense(Long id, Expense expense) throws ExpenseIsNullException{
+        if(expense == null)
+            throw new ExpenseIsNullException("Expense object is not in the request");
+        Expense oldExpense = getExpenseByUserIdAndExpenseId(id, expense.getId());
+        userService.updateAmountSpent(id, oldExpense, false);
+        userService.updateAmountSpent(id, expense, true);
+        expenseRepo.save(expense);
     }
 }

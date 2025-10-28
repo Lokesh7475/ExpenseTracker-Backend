@@ -35,10 +35,15 @@ public class UserController {
         return new ResponseEntity<>(userService.addUser(user), HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id){
-        User user1 = userService.getUserById(id);
-        userService.deleteUser(user1);
-        return new  ResponseEntity<>(HttpStatus.OK);
+    @DeleteMapping("/users")
+    public ResponseEntity<?> deleteUser(@RequestBody User user){
+        userService.deleteUser(user);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/users")
+    public ResponseEntity<?> updateUser(@RequestBody User user){
+        User updatedUser = userService.updateUser(user);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 }

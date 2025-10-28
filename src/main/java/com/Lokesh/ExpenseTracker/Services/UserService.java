@@ -38,9 +38,16 @@ public class UserService {
         userRepo.delete(user1);
     }
 
-    public void updateAmountSpent(Long id, Expense expense) throws InvalidUserException {
+    public void updateAmountSpent(Long id, Expense expense, Boolean toAdd) throws InvalidUserException {
         User user = userRepo.findById(id).orElseThrow(() -> new InvalidUserException("This user does not exists"));
-        user.setAmountSpent(user.getAmountSpent().add(expense.getAmount()));
+        if(toAdd)
+            user.setAmountSpent(user.getAmountSpent().add(expense.getAmount()));
+        else
+            user.setAmountSpent(user.getAmountSpent().subtract(expense.getAmount()));
         userRepo.save(user);
+    }
+
+    public User updateUser(User user) {
+        return userRepo.save(user);
     }
 }

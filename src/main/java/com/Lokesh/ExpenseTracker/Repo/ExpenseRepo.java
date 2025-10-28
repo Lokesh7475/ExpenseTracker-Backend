@@ -10,4 +10,6 @@ public interface ExpenseRepo extends JpaRepository<Expense, Long> {
     List<Expense> findByUserId(Long userId);
 
     List<Expense> findByIdAndUserId(Long id, Long userId, Limit limit);
+
+    void deleteExpenseByIdAndUserId(Long id, Long userId);
 }
