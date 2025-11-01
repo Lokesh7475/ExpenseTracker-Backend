@@ -50,4 +50,11 @@ public class UserService {
     public User updateUser(User user) {
         return userRepo.save(user);
     }
+
+    public User getUserByUsername(String username) {
+        User user = userRepo.findUserByUsername(username);
+        if(user==null)
+            throw new InvalidUserException("This user does not exists");
+        return user;
+    }
 }
