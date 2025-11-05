@@ -5,9 +5,9 @@ import com.Lokesh.ExpenseTracker.Models.Expense;
 import com.Lokesh.ExpenseTracker.Models.User;
 import com.Lokesh.ExpenseTracker.Repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.*;
 
@@ -15,9 +15,12 @@ import java.util.stream.*;
 public class UserService {
 
     private final UserRepo userRepo;
+    private final BCryptPasswordEncoder passwordEncoder;
+
     @Autowired
-    public UserService(UserRepo userRepo) {
+    public UserService(UserRepo userRepo, BCryptPasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User getUserById(Long id) throws InvalidUserException {
@@ -25,8 +28,7 @@ public class UserService {
     }
 
     public User addUser(User user) {
-        if(user.getAmountSpent()==null)
-            user.setAmountSpent(new BigDecimal("0.00"));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepo.save(user);
     }
 

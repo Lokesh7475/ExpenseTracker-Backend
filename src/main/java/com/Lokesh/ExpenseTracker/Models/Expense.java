@@ -17,12 +17,22 @@ public class Expense {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
-    private Long userId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id", nullable=false)
+    private User user;
+
+    @Column(nullable=false, updatable=false)
     private LocalDateTime dateAndTime;
+
     private String description;
     private String category;
 
     private String paymentMethod;
     private BigDecimal amount;
+
+    @PrePersist
+    protected void onCreate() {
+        dateAndTime = LocalDateTime.now();
+    }
 }
