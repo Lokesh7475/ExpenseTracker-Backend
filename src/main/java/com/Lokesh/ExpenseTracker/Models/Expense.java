@@ -1,5 +1,7 @@
 package com.Lokesh.ExpenseTracker.Models;
 
+import com.Lokesh.ExpenseTracker.Enums.Category;
+import com.Lokesh.ExpenseTracker.Enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,9 +28,11 @@ public class Expense {
     private LocalDateTime dateAndTime;
 
     private String description;
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private Category category;
 
-    private String paymentMethod;
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
     private BigDecimal amount;
 
     @PrePersist
