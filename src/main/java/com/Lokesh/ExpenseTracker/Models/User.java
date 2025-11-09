@@ -2,6 +2,7 @@ package com.Lokesh.ExpenseTracker.Models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -21,6 +22,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class User {
 
     @Id
@@ -39,7 +41,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Expense> expenses = new ArrayList<>();
 
-    private BigDecimal amountSpent = BigDecimal.ZERO;
+    private BigDecimal amountSpent = new BigDecimal("0.0");
 
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -47,6 +49,7 @@ public class User {
 
     @PrePersist
     protected void onCreate() {
+        amountSpent = BigDecimal.ZERO;
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }

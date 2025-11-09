@@ -1,6 +1,7 @@
 package com.Lokesh.ExpenseTracker.Controllers;
 
-import com.Lokesh.ExpenseTracker.Models.Expense;
+import com.Lokesh.ExpenseTracker.DTO.ExpenseDTO;
+import com.Lokesh.ExpenseTracker.DTO.ExpenseRequestDTO;
 import com.Lokesh.ExpenseTracker.Services.ExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,32 +27,30 @@ public class ExpenseController {
     }
 
     @GetMapping("/users/{id}/expenses")
-    public ResponseEntity<List<Expense>> getExpensesByUserId(@PathVariable Long id){
-        List<Expense> expenses = expenseService.getExpensesByUserId(id);
+    public ResponseEntity<List<ExpenseDTO>> getExpensesByUserId(@PathVariable Long id){
+        List<ExpenseDTO> expenses = expenseService.getExpensesByUserId(id);
         return new ResponseEntity<>(expenses, HttpStatus.OK);
     }
 
     @PostMapping("/users/{id}/expenses")
-    public ResponseEntity<Expense> createExpense(@PathVariable Long id, @RequestBody Expense expense){
-        expenseService.addExpense(id, expense);
-        return new ResponseEntity<>(expense ,HttpStatus.CREATED);
+    public ResponseEntity<ExpenseDTO> createExpense(@PathVariable Long id, @RequestBody ExpenseRequestDTO expense){
+        return new ResponseEntity<>(expenseService.addExpense(id, expense) ,HttpStatus.CREATED);
     }
 
     @GetMapping("/users/{uid}/expenses/{eid}")
     public ResponseEntity<?> getExpenseById(@PathVariable Long uid, @PathVariable Long eid){
-        Expense expense = expenseService.getExpenseByUserIdAndExpenseId(uid, eid);
+        ExpenseDTO expense = expenseService.getExpenseByUserIdAndExpenseId(uid, eid);
         return new ResponseEntity<>(expense, HttpStatus.OK);
     }
 
-    @DeleteMapping("/users/{id}/expenses")
-    public ResponseEntity<?> deleteExpense(@PathVariable Long id, @RequestBody Expense expense) {
-        expenseService.deleteExpense(id, expense);
+    @DeleteMapping("/users/{uid}/expenses/{eid}")
+    public ResponseEntity<?> deleteExpense(@PathVariable Long uid, @PathVariable Long eid) {
+        expenseService.deleteExpense(uid, eid);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping("/users/{id}/expenses")
-    public ResponseEntity<?> updateExpense(@PathVariable Long id, @RequestBody Expense expense){
-        expenseService.updateExpense(id, expense);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> updateExpense(@PathVariable Long id, @RequestBody ExpenseDTO expense){
+        return new ResponseEntity<>(expenseService.updateExpense(id, expense), HttpStatus.OK);
     }
 }

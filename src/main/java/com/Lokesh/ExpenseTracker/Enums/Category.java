@@ -6,6 +6,7 @@ public enum Category {
     ELECTRONICS,
     UTILITIES,
     CLOTHING,
+    FOOD,
     HEALTH,
     OTHERS
 }

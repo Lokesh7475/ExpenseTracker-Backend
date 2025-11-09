@@ -1,13 +1,17 @@
 package com.Lokesh.ExpenseTracker.Services;
 
+import com.Lokesh.ExpenseTracker.DTO.ExpenseDTO;
+import com.Lokesh.ExpenseTracker.DTO.UserDTO;
+import com.Lokesh.ExpenseTracker.DTO.UserRegistrationDTO;
 import com.Lokesh.ExpenseTracker.Exceptions.InvalidUserException;
-import com.Lokesh.ExpenseTracker.Models.Expense;
+import com.Lokesh.ExpenseTracker.Mappers.UserMapper;
 import com.Lokesh.ExpenseTracker.Models.User;
 import com.Lokesh.ExpenseTracker.Repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.*;
 
@@ -23,24 +27,33 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User getUserById(Long id) throws InvalidUserException {
-        return userRepo.findById(id).stream().findFirst().orElseThrow(() -> new InvalidUserException("This user does not exists"));
+    public UserDTO getUserById(Long id) throws InvalidUserException {
+        User user = userRepo
+                .findById(id)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new InvalidUserException("This user does not exists"));
+
+        return UserMapper.toUserDTO(user);
     }
 
-    public User addUser(User user) {
+    public UserDTO addUser(UserRegistrationDTO userDTO) {
+        User user = UserMapper.toUser(userDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepo.save(user);
+        if(user.getAmountSpent() == null)
+            user.setAmountSpent(BigDecimal.ZERO);
+        return UserMapper.toUserDTO(userRepo.save(user));
     }
 
-    public List<User> getAllUsers() {
-        return userRepo.findAll();
+    public List<UserDTO> getAllUsers() {
+        return UserMapper.toUserDTO(userRepo.findAll());
     }
 
-    public void deleteUser(User user1) {
-        userRepo.delete(user1);
+    public void deleteUser(UserDTO user1) {
+        userRepo.delete(userRepo.findById(user1.getId()).orElseThrow(() -> new InvalidUserException("This user does not exists")));
     }
 
-    public void updateAmountSpent(Long id, Expense expense, Boolean toAdd) throws InvalidUserException {
+    public void updateAmountSpent(Long id, ExpenseDTO expense, Boolean toAdd) throws InvalidUserException {
         User user = userRepo.findById(id).orElseThrow(() -> new InvalidUserException("This user does not exists"));
         if(toAdd)
             user.setAmountSpent(user.getAmountSpent().add(expense.getAmount()));
@@ -49,14 +62,19 @@ public class UserService {
         userRepo.save(user);
     }
 
-    public User updateUser(User user) {
-        return userRepo.save(user);
+    public UserDTO updateUser(UserDTO user) {
+        User oldUser = userRepo.findById(user.getId()).stream().findFirst().orElseThrow(() -> new InvalidUserException("User does not exist"));
+        oldUser.setUsername(user.getUsername());
+        oldUser.setEmail(user.getEmail());
+        oldUser.setAmountSpent(user.getAmountSpent());
+
+        return UserMapper.toUserDTO(userRepo.save(oldUser));
     }
 
-    public User getUserByUsername(String username) {
+    public UserDTO getUserByUsername(String username) {
         User user = userRepo.findUserByUsername(username);
         if(user==null)
             throw new InvalidUserException("This user does not exists");
-        return user;
+        return UserMapper.toUserDTO(user);
     }
 }

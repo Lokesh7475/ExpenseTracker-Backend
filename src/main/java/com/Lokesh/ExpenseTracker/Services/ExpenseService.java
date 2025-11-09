@@ -1,13 +1,17 @@
 package com.Lokesh.ExpenseTracker.Services;
 
+import com.Lokesh.ExpenseTracker.DTO.ExpenseDTO;
+import com.Lokesh.ExpenseTracker.DTO.ExpenseRequestDTO;
 import com.Lokesh.ExpenseTracker.Exceptions.AccessDeniedException;
 import com.Lokesh.ExpenseTracker.Exceptions.ExpenseIsNullException;
 import com.Lokesh.ExpenseTracker.Exceptions.ExpenseNotFoundException;
 import com.Lokesh.ExpenseTracker.Exceptions.InvalidUserException;
+import com.Lokesh.ExpenseTracker.Mappers.ExpenseMapper;
 import com.Lokesh.ExpenseTracker.Models.Expense;
+import com.Lokesh.ExpenseTracker.Models.User;
 import com.Lokesh.ExpenseTracker.Repo.ExpenseRepo;
+import com.Lokesh.ExpenseTracker.Repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,41 +22,76 @@ public class ExpenseService {
 
     private final UserService userService;
     private final ExpenseRepo expenseRepo;
+    private final UserRepo userRepo;
+
     @Autowired
-    public ExpenseService(UserService userService, ExpenseRepo expenseRepo) {
+    public ExpenseService(UserService userService, ExpenseRepo expenseRepo, UserRepo userRepo) {
         this.userService = userService;
         this.expenseRepo = expenseRepo;
+        this.userRepo = userRepo;
     }
 
-    public List<Expense> getExpensesByUserId(Long id) {
-        return expenseRepo.findByUserId(id);
-    }
-
-    @Transactional
-    public void addExpense(Long id, Expense expense) throws InvalidUserException {
-        userService.updateAmountSpent(id, expense, true);
-        expenseRepo.save(expense);
-    }
-
-    public Expense getExpenseByUserIdAndExpenseId(Long uid, Long eid) throws AccessDeniedException, ExpenseNotFoundException {
-        return expenseRepo.findByIdAndUserId(eid, uid, Limit.of(1)).stream().findFirst().orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
+    public List<ExpenseDTO> getExpensesByUserId(Long id) {
+        return ExpenseMapper.toExpenseDTO(expenseRepo.findByUserId(id));
     }
 
     @Transactional
-    public void deleteExpense(Long id, Expense expense) throws ExpenseIsNullException{
+    public ExpenseDTO addExpense(Long id, ExpenseRequestDTO expense) throws InvalidUserException {
+        Expense ex = ExpenseMapper.toExpense(expense);
+        ex.setUser(userRepo.findById(id).stream().findFirst().orElseThrow(()->new InvalidUserException("User not found")));
+        userService.updateAmountSpent(id, ExpenseMapper.toExpenseDTO(ex), true);
+        expenseRepo.save(ex);
+        return ExpenseMapper.toExpenseDTO(ex);
+    }
+
+    public ExpenseDTO getExpenseByUserIdAndExpenseId(Long uid, Long eid) throws AccessDeniedException, ExpenseNotFoundException {
+        User user = userRepo
+                        .findById(uid)
+                        .stream()
+                        .findFirst()
+                        .orElseThrow(()->new InvalidUserException("User not found"));
+
+        Expense expense = user
+                        .getExpenses()
+                        .stream()
+                        .filter(ex -> ex.getId().equals(eid))
+                        .findFirst()
+                        .orElseThrow(() -> new ExpenseNotFoundException("Expense not found or this expense does not belong to the user"));
+
+        return ExpenseMapper.toExpenseDTO(expense);
+    }
+
+    @Transactional
+    public void deleteExpense(Long uid, Long eid) throws ExpenseNotFoundException {
+        Expense expense = userRepo.findById(uid)
+                .stream()
+                .findFirst()
+                .orElseThrow(()->new ExpenseNotFoundException("User not found"))
+                .getExpenses()
+                .stream().
+                filter(ex -> ex.getId().equals(eid))
+                .findFirst()
+                .orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
+        userService.updateAmountSpent(uid, ExpenseMapper.toExpenseDTO(expense), false);
+        expenseRepo.deleteById(expense.getId());
+    }
+
+    @Transactional
+    public ExpenseDTO updateExpense(Long id, ExpenseDTO expense) throws ExpenseIsNullException{
         if(expense == null)
             throw new ExpenseIsNullException("Expense object is not in the request");
-        expenseRepo.deleteExpenseByIdAndUserId(expense.getId(), id);
-        userService.updateAmountSpent(id, expense, false);
-    }
-
-    @Transactional
-    public void updateExpense(Long id, Expense expense) throws ExpenseIsNullException{
-        if(expense == null)
-            throw new ExpenseIsNullException("Expense object is not in the request");
-        Expense oldExpense = getExpenseByUserIdAndExpenseId(id, expense.getId());
+        ExpenseDTO oldExpense = getExpenseByUserIdAndExpenseId(id, expense.getId());
         userService.updateAmountSpent(id, oldExpense, false);
         userService.updateAmountSpent(id, expense, true);
-        expenseRepo.save(expense);
+
+        Expense oldExp = expenseRepo.findById(expense.getId()).orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
+        if(expense.getAmount() != null)
+            oldExp.setAmount(expense.getAmount());
+        oldExp.setDescription(expense.getDescription());
+        oldExp.setCategory(expense.getCategory());
+        oldExp.setPaymentMethod(expense.getPaymentMethod());
+        expenseRepo.save(oldExp);
+
+        return ExpenseMapper.toExpenseDTO(oldExp);
     }
 }

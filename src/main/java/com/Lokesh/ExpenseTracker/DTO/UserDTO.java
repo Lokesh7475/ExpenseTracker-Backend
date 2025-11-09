@@ -1,13 +1,19 @@
 package com.Lokesh.ExpenseTracker.DTO;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class UserDTO {
     private Long id;
     private String username;
     private String email;
-    private BigDecimal amountSpent;
-    private LocalDateTime updatedAt;
-    private LocalDateTime createdAt;
+    private BigDecimal amountSpent = new BigDecimal("0.00");
 }
