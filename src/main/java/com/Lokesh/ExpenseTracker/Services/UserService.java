@@ -72,7 +72,7 @@ public class UserService {
     }
 
     public UserDTO getUserByUsername(String username) {
-        User user = userRepo.findUserByUsername(username);
+        User user = userRepo.findUserByUsername(username).orElseThrow(() -> new InvalidUserException("This user does not exists"));
         if(user==null)
             throw new InvalidUserException("This user does not exists");
         return UserMapper.toUserDTO(user);
