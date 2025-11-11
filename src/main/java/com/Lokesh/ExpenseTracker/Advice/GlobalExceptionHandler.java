@@ -3,6 +3,7 @@ package com.Lokesh.ExpenseTracker.Advice;
 import com.Lokesh.ExpenseTracker.Exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -39,5 +40,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleBadRequestException(ExpenseIsNullException e) {
         ErrorResponse badRequest = new ErrorResponse(LocalDateTime.now(), e.getMessage(), "Bad Request");
         return new ResponseEntity<>(badRequest, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<?> handleUsernameNotFoundException(UsernameNotFoundException e) {
+        ErrorResponse usernameNotFound = new ErrorResponse(LocalDateTime.now(), e.getMessage(), "Username Not Found");
+        return new ResponseEntity<>(usernameNotFound, HttpStatus.NOT_FOUND);
     }
 }
