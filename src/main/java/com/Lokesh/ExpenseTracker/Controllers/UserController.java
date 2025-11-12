@@ -1,7 +1,6 @@
 package com.Lokesh.ExpenseTracker.Controllers;
 
 import com.Lokesh.ExpenseTracker.DTO.UserDTO;
-import com.Lokesh.ExpenseTracker.DTO.UserRegistrationDTO;
 import com.Lokesh.ExpenseTracker.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,11 +34,6 @@ public class UserController {
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id){
         UserDTO user = userService.getUserById(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-    @PostMapping("/users")
-    public ResponseEntity<?> addUser(@RequestBody UserRegistrationDTO user){
-        return new ResponseEntity<>(userService.addUser(user), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/users")
