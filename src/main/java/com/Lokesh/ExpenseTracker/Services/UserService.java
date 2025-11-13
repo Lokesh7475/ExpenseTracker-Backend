@@ -51,9 +51,10 @@ public class UserService {
 
     public UserDTO updateUser(UserDTO user) {
         User oldUser = userRepo.findById(user.getId()).stream().findFirst().orElseThrow(() -> new InvalidUserException("User does not exist"));
-        oldUser.setUsername(user.getUsername());
-        oldUser.setEmail(user.getEmail());
-        oldUser.setAmountSpent(user.getAmountSpent());
+        if(!(user.getUsername() == null || user.getUsername().isEmpty()))
+            oldUser.setUsername(user.getUsername());
+        if(!(user.getEmail() == null || user.getEmail().isEmpty()))
+            oldUser.setEmail(user.getEmail());
 
         return UserMapper.toUserDTO(userRepo.save(oldUser));
     }
