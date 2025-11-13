@@ -62,21 +62,6 @@ public class ExpenseService {
     }
 
     @Transactional
-    public void deleteExpense(Long uid, Long eid) throws ExpenseNotFoundException {
-        Expense expense = userRepo.findById(uid)
-                .stream()
-                .findFirst()
-                .orElseThrow(()->new ExpenseNotFoundException("User not found"))
-                .getExpenses()
-                .stream().
-                filter(ex -> ex.getId().equals(eid))
-                .findFirst()
-                .orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
-        userService.updateAmountSpent(uid, ExpenseMapper.toExpenseDTO(expense), false);
-        expenseRepo.deleteById(expense.getId());
-    }
-
-    @Transactional
     public ExpenseDTO updateExpense(Long id, ExpenseDTO expense) throws ExpenseIsNullException{
         if(expense == null)
             throw new ExpenseIsNullException("Expense object is not in the request");
@@ -93,5 +78,18 @@ public class ExpenseService {
         expenseRepo.save(oldExp);
 
         return ExpenseMapper.toExpenseDTO(oldExp);
+    }
+
+    @Transactional
+    public void deleteExpense(Long uid, Long eid) throws ExpenseNotFoundException {
+        User user = userRepo.findById(uid).orElseThrow(() -> new InvalidUserException("User id is not valid"));
+        Expense expense = expenseRepo.findById(eid).orElseThrow(() -> new ExpenseNotFoundException("Expense id not found"));
+
+        if(!expense.getUser().getId().equals(user.getId()))
+            throw new AccessDeniedException("This expense does not belong to the user");
+
+        userService.updateAmountSpent(uid, ExpenseMapper.toExpenseDTO(expense), false);
+        user.getExpenses().remove(expense);
+        expenseRepo.delete(expense);
     }
 }
