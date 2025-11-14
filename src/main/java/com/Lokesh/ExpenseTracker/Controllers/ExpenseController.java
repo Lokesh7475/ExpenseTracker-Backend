@@ -4,11 +4,10 @@ import com.Lokesh.ExpenseTracker.DTO.ExpenseDTO;
 import com.Lokesh.ExpenseTracker.DTO.ExpenseRequestDTO;
 import com.Lokesh.ExpenseTracker.Services.ExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -27,8 +26,8 @@ public class ExpenseController {
     }
 
     @GetMapping("/users/{id}/expenses")
-    public ResponseEntity<List<ExpenseDTO>> getExpensesByUserId(@PathVariable Long id){
-        List<ExpenseDTO> expenses = expenseService.getExpensesByUserId(id);
+    public ResponseEntity<Page<ExpenseDTO>> getExpensesByUserId(@PathVariable Long id, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "dateAndTime") String sortBy){
+        Page<ExpenseDTO> expenses = expenseService.getExpensesByUserId(id, page, size, sortBy);
         return new ResponseEntity<>(expenses, HttpStatus.OK);
     }
 

@@ -12,10 +12,12 @@ import com.Lokesh.ExpenseTracker.Models.User;
 import com.Lokesh.ExpenseTracker.Repo.ExpenseRepo;
 import com.Lokesh.ExpenseTracker.Repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class ExpenseService {
@@ -31,8 +33,11 @@ public class ExpenseService {
         this.userRepo = userRepo;
     }
 
-    public List<ExpenseDTO> getExpensesByUserId(Long id) {
-        return ExpenseMapper.toExpenseDTO(expenseRepo.findByUserId(id));
+    public Page<ExpenseDTO> getExpensesByUserId(Long id, int page, int size, String sortBy) {
+        User user = userRepo.findById(id).orElseThrow(() -> new InvalidUserException("User not found"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
+        Page<Expense> expenses = expenseRepo.findByUser(user, pageable);
+        return expenses.map(ExpenseMapper::toExpenseDTO);
     }
 
     @Transactional
