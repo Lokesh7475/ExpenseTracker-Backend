@@ -50,6 +50,12 @@ public class User implements UserDetails {
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    @Column(nullable = false)
+    private boolean enabled = false;
+
+    @Column(nullable = false)
+    private boolean emailVerified = false;
+
     @PrePersist
     protected void onCreate() {
         amountSpent = BigDecimal.ZERO;
