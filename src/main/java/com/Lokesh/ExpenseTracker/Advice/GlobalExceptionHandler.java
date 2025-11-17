@@ -47,4 +47,10 @@ public class GlobalExceptionHandler {
         ErrorResponse usernameNotFound = new ErrorResponse(LocalDateTime.now(), e.getMessage(), "Username Not Found");
         return new ResponseEntity<>(usernameNotFound, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
+        ErrorResponse illegalArgument = new ErrorResponse(LocalDateTime.now(), e.getMessage(), "Illegal Argument");
+        return new ResponseEntity<>(illegalArgument, HttpStatus.BAD_REQUEST);
+    }
 }
