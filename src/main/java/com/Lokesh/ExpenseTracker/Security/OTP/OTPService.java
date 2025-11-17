@@ -37,4 +37,8 @@ public class OTPService {
 
         return otp.getOtp().equals(userOTP);
     }
+
+    public void deleteOTP(String email) {
+        otpRepo.deleteByEmail(email);
+    }
 }

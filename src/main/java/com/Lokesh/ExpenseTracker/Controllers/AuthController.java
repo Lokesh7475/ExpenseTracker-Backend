@@ -7,10 +7,7 @@ import com.Lokesh.ExpenseTracker.DTO.UserRegistrationDTO;
 import com.Lokesh.ExpenseTracker.Security.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -31,5 +28,15 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<UserDTO> signup(@RequestBody UserRegistrationDTO userRegistrationDTO) {
         return ResponseEntity.ok(authService.signup(userRegistrationDTO));
+    }
+
+    @PostMapping("/send-otp")
+    public ResponseEntity<String> sendOTP(@RequestParam String email){
+        return ResponseEntity.ok(authService.sendOTP(email));
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<String> verifyOTP(@RequestParam String email,  @RequestParam String otp){
+        return ResponseEntity.ok(authService.verifyOTP(email, otp));
     }
 }
