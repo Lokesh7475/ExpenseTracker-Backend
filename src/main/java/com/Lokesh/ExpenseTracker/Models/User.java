@@ -56,6 +56,11 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean emailVerified = false;
 
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
     @PrePersist
     protected void onCreate() {
         amountSpent = BigDecimal.ZERO;
