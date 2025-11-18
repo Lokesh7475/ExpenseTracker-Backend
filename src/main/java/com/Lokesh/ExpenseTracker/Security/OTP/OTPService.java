@@ -1,5 +1,6 @@
 package com.Lokesh.ExpenseTracker.Security.OTP;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import java.util.Random;
 public class OTPService {
     private final OTPRepo otpRepo;
 
+    @Transactional
     public String generateOTP(String email){
 
         otpRepo.deleteByEmail(email);
@@ -38,6 +40,7 @@ public class OTPService {
         return otp.getOtp().equals(userOTP);
     }
 
+    @Transactional
     public void deleteOTP(String email) {
         otpRepo.deleteByEmail(email);
     }
