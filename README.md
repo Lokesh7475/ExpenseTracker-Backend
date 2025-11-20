@@ -37,6 +37,8 @@ This project demonstrates clean layering, exception handling, and DTO-based data
     |   |               |       GlobalExceptionHandler.java
     |   |               |       
     |   |               +---Config
+    |   |               |       RabbitMQConfig.java
+    |   |               |       
     |   |               +---Controllers
     |   |               |       AuthController.java
     |   |               |       ExpenseController.java
@@ -50,6 +52,11 @@ This project demonstrates clean layering, exception handling, and DTO-based data
     |   |               |       SignupResponseDTO.java
     |   |               |       UserDTO.java
     |   |               |       UserRegistrationDTO.java
+    |   |               |       
+    |   |               +---Email
+    |   |               |       EmailQueueConsumer.java
+    |   |               |       EmailQueueProducer.java
+    |   |               |       EmailService.java
     |   |               |       
     |   |               +---Enums
     |   |               |       Category.java
@@ -75,12 +82,17 @@ This project demonstrates clean layering, exception handling, and DTO-based data
     |   |               |       UserRepo.java
     |   |               |       
     |   |               +---Security
-    |   |               |       AuthService.java
-    |   |               |       AuthUtil.java
-    |   |               |       CustomUserDetailsService.java
-    |   |               |       JwtAuthFilter.java
-    |   |               |       SecurityConfig.java
-    |   |               |       
+    |   |               |   |   AuthService.java
+    |   |               |   |   AuthUtil.java
+    |   |               |   |   CustomUserDetailsService.java
+    |   |               |   |   JwtAuthFilter.java
+    |   |               |   |   SecurityConfig.java
+    |   |               |   |   
+    |   |               |   \---OTP
+    |   |               |           OTP.java
+    |   |               |           OTPRepo.java
+    |   |               |           OTPService.java
+    |   |               |           
     |   |               \---Services
     |   |                       ExpenseService.java
     |   |                       UserService.java
@@ -96,31 +108,32 @@ This project demonstrates clean layering, exception handling, and DTO-based data
                 \---Lokesh
                     \---ExpenseTracker
                             ExpenseTrackerApplicationTests.java
-
 ```
 
 ## API Endpoints
 #### Authentication APIs (/api/auth)
 ```text
-POST	         /api/auth/signup	                   Register a new user
-POST	         /api/auth/login	                   Login and get JWT token
+POST                /api/auth/signup                            Register a new user
+POST                /api/auth/login                             Login and get JWT token
+POST                /api/auth/send-otp                          Send OTP on the user's email
+POST                /api/auth/verify-otp                        Verify the OTP entered by the User
 ```
 
 #### User APIs (/api/users)
 ```text
-GET	           /api/users	                           Get all users
-GET            /api/users/{id}                         Get user by ID
-GET	           /api/users/username/{username}	       Get user by username
-PUT	           /api/users	                           Update user details
-DELETE	       /api/users	                           Delete a user
+GET                 /api/users	                                Get all users
+GET                 /api/users/{id}                             Get user by ID
+GET                 /api/users/username/{username}              Get user by username
+PUT                 /api/users	                                Update user details
+DELETE              /api/users	                                Delete a user
 ```
 #### Expense APIs (/api/users/{id}/expenses)
 ```text
-GET            /api/users/{id}/expenses	               Get all expenses for a user
-GET	           /api/users/{uid}/expenses/{eid}	       Get expense by ID
-POST           /api/users/{id}/expenses	               Add a new expense
-PUT	           /api/users/{id}/expenses	               Update an expense
-DELETE	       /api/users/{uid}/expenses/{eid}	       Delete an expense
+GET                 /api/users/{id}/expenses                    Get all expenses for a user
+GET                 /api/users/{uid}/expenses/{eid}             Get expense by ID
+POST                /api/users/{id}/expenses                    Add a new expense
+PUT                 /api/users/{id}/expenses                    Update an expense
+DELETE              /api/users/{uid}/expenses/{eid}             Delete an expense
 ```
 
 ### Clone the Repository
