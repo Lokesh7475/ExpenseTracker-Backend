@@ -12,6 +12,9 @@ import com.Lokesh.ExpenseTracker.Models.User;
 import com.Lokesh.ExpenseTracker.Repo.ExpenseRepo;
 import com.Lokesh.ExpenseTracker.Repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +29,8 @@ public class ExpenseService {
     private final ExpenseRepo expenseRepo;
     private final UserRepo userRepo;
 
+    private static final String CACHE_NAME = "expenses";
+
     @Autowired
     public ExpenseService(UserService userService, ExpenseRepo expenseRepo, UserRepo userRepo) {
         this.userService = userService;
@@ -33,6 +38,7 @@ public class ExpenseService {
         this.userRepo = userRepo;
     }
 
+    @Cacheable(cacheNames = CACHE_NAME, key = "#id")
     public Page<ExpenseDTO> getExpensesByUserId(Long id, int page, int size, String sortBy) {
         User user = userRepo.findById(id).orElseThrow(() -> new InvalidUserException("User not found"));
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
@@ -41,6 +47,7 @@ public class ExpenseService {
     }
 
     @Transactional
+    @CachePut(cacheNames = CACHE_NAME, key = "#result.id")
     public ExpenseDTO addExpense(Long id, ExpenseRequestDTO expense) throws InvalidUserException {
         Expense ex = ExpenseMapper.toExpense(expense);
         ex.setUser(userRepo.findById(id).stream().findFirst().orElseThrow(()->new InvalidUserException("User not found")));
@@ -67,6 +74,7 @@ public class ExpenseService {
     }
 
     @Transactional
+    @CachePut(cacheNames = CACHE_NAME, key = "#result.id")
     public ExpenseDTO updateExpense(Long id, ExpenseDTO expense) throws ExpenseIsNullException{
         if(expense == null)
             throw new ExpenseIsNullException("Expense object is not in the request");
@@ -86,6 +94,7 @@ public class ExpenseService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = CACHE_NAME, key = "#eid")
     public void deleteExpense(Long uid, Long eid) throws ExpenseNotFoundException {
         User user = userRepo.findById(uid).orElseThrow(() -> new InvalidUserException("User id is not valid"));
         Expense expense = expenseRepo.findById(eid).orElseThrow(() -> new ExpenseNotFoundException("Expense id not found"));
